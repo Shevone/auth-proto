@@ -1,0 +1,60 @@
+
+syntax = "proto3";
+
+package auth;
+
+option  go_package = "auth.v1;auth";
+// a
+service Auth{
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc UpdateUserRole(UpdateRoleRequest) returns (UpdatePasswordResponse);
+  rpc UpdateUserPassword(UpdatePasswordRequest) returns (UpdatePasswordResponse);
+}
+
+enum Role {
+  Guest = 0;
+  Client = 1;
+  Trainer = 2;
+  Admin = 3;
+}
+
+
+// ============================================================================
+// Registration
+
+message RegisterRequest{
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterResponse{
+  string token = 1; //  JWT token
+}
+
+// ============================================================================
+message LoginRequest{
+  string login = 1;
+  string password = 2;
+}
+message LoginResponse{
+  string token = 1; // Токен аутентификации
+}
+
+// =============================================================================
+message UpdateRoleRequest{
+  string userUUID = 1;
+  Role role = 2;
+}
+message UpdateUserRoleResponse{
+  bool result = 1;
+}
+
+// =============================================================================
+message UpdatePasswordRequest{
+  string userUUID = 1;
+  string password = 2;
+}
+message  UpdatePasswordResponse{
+  bool result = 1;
+}
