@@ -10,6 +10,7 @@ service Auth{
   rpc Login(LoginRequest) returns (LoginResponse);
   rpc UpdateUserRole(UpdateRoleRequest) returns (UpdatePasswordResponse);
   rpc UpdateUserPassword(UpdatePasswordRequest) returns (UpdatePasswordResponse);
+  rpc VerifyingToken(VerifyRequest) returns (VerifyResponse);
 }
 
 enum Role {
@@ -57,4 +58,11 @@ message UpdatePasswordRequest{
 }
 message  UpdatePasswordResponse{
   bool result = 1;
+}
+// =============================================================================
+message VerifyRequest{
+  string token = 1;
+}
+message VerifyResponse{
+  bool ok = 1;
 }

@@ -26,6 +26,7 @@ type AuthClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	UpdateUserRole(ctx context.Context, in *UpdateRoleRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error)
 	UpdateUserPassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*UpdatePasswordResponse, error)
+	VerifyingToken(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error)
 }
 
 type authClient struct {
@@ -72,6 +73,15 @@ func (c *authClient) UpdateUserPassword(ctx context.Context, in *UpdatePasswordR
 	return out, nil
 }
 
+func (c *authClient) VerifyingToken(ctx context.Context, in *VerifyRequest, opts ...grpc.CallOption) (*VerifyResponse, error) {
+	out := new(VerifyResponse)
+	err := c.cc.Invoke(ctx, "/auth.Auth/VerifyingToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type AuthServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	UpdateUserRole(context.Context, *UpdateRoleRequest) (*UpdatePasswordResponse, error)
 	UpdateUserPassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error)
+	VerifyingToken(context.Context, *VerifyRequest) (*VerifyResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -98,6 +109,9 @@ func (UnimplementedAuthServer) UpdateUserRole(context.Context, *UpdateRoleReques
 }
 func (UnimplementedAuthServer) UpdateUserPassword(context.Context, *UpdatePasswordRequest) (*UpdatePasswordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUserPassword not implemented")
+}
+func (UnimplementedAuthServer) VerifyingToken(context.Context, *VerifyRequest) (*VerifyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyingToken not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -184,6 +198,24 @@ func _Auth_UpdateUserPassword_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_VerifyingToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).VerifyingToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.Auth/VerifyingToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).VerifyingToken(ctx, req.(*VerifyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -206,6 +238,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUserPassword",
 			Handler:    _Auth_UpdateUserPassword_Handler,
+		},
+		{
+			MethodName: "VerifyingToken",
+			Handler:    _Auth_VerifyingToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
